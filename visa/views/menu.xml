@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem id="parent_menu_root"
+         name="Visa"
+         sequence="6"/>
+
+</odoo>

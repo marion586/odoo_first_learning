@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="school_student_profile_report_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc" >
+                <t t-call="qweb_pdf_report_example.sub_student_template"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="sub_student_template">
+      <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <p t-att="['style','background:red;']">marion</p>
+                        <a t-att-href="doc.school_id.email">Google</a>
+                        <t t-set="a" t-value="12545645644"/>
+                        <h1 t-esc="a"/>
+<!--                        for proper vaiable-->
+<!--                        <span t-field="doc.name" t-att-style="'background-color:green;':doc.name=='Ramu Chacha' , 'background-color:black;':doc.name not 'Ramu Chacha'"/>-->
+
+                        <p t-attf-style="background-color:#{doc.roll_number};">this i s dynamic</p>
+
+                        <p t-attf-style="background-color:{{doc.roll_number if doc.roll_number else 'green'}};">this i s dynamic too value</p>
+                        <span t-field="doc.name"/>
+                        <h1 t-field="doc.name"/>
+                        <h2 t-field="doc.name"/>
+                        <h3 t-field="doc.name"/>
+                        <h4 t-field="doc.name"/>
+                        <h6 t-field="doc.name"/>
+
+                        <t t-if="doc.name == 'Shitaraman'">
+                            <p>Yes this is Shitaraman</p>
+                        </t>
+                        <t t-else="">
+                            <p>this is marion</p>
+                        </t>
+
+                        <t t-foreach="[1,2,3,4,5,6]" t-as="rct">
+                            <h1 t-esc="rct"/>
+                        </t>
+                        <t t-foreach="doc.school_id.school_list" t-as="rct">
+                            <h1 t-field="rct.name"/>
+                            sequence of the foreach loop:  <span t-esc="rct_index"/>
+                            is the first index ? <span t-esc="rct_first"/>
+                        </t>
+                         <t t-set="a" t-value="'marion'"/>
+                        <t t-esc="a"/>
+
+                        <t t-set="b" t-value="doc.name"/>
+                        <t t-esc="b"/>
+
+                        <t t-set="c" t-value="123456"/>
+                        <t t-esc="c"/>
+
+                        <t t-foreach="doc.school_id.school_list" t-as="rct">
+                            <t t-set="abc" t-value="5"/>
+                            <t t-esc="c+abc"/>
+                        </t>
+                    </div>
+                </t>
+    </template>
+    <record id="school_student_profile_report_temp" model="ir.actions.report" >
+        <field name="name">Student Card</field>
+        <field name="model">school.student</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">qweb_pdf_report_example.school_student_profile_report_template</field>
+        <field name="report_file">qweb_pdf_report_example.school_student_profile_report_template</field>
+        <field name="print_report_name"> 'Student-Card' </field>
+        <field name="binding_model_id" ref="school_student.model_school_student"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

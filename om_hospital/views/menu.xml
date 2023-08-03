@@ -2,10 +2,25 @@
 <odoo>
     <menuitem id="menu_hospital_root"
               name="Hospital"
+              web_icon="om_hospital,static/description/icon.png"
               sequence="0"/>
+
     <menuitem id="menu_patient_master"
               name="Patient Details"
               parent="menu_hospital_root"
-              sequence="0"/>
+              sequence="2"/>
 
+    <menuitem id="menu_appointment_master"
+              name="Appointments"
+              parent="menu_hospital_root"
+              sequence="3"/>
+    <menuitem id="menu_configuration"
+              name="Configuration"
+              parent="menu_hospital_root"
+              sequence="4"/>
+    <menuitem id="menu_cancel_appointment"
+              name="Cancellation"
+              action="action_cancel_appointment"
+              parent="menu_appointment_master"
+              sequence="15"/>
 </odoo>

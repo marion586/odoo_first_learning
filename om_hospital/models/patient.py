@@ -16,7 +16,10 @@ class HospitalPatient(models.Model):
     age = fields.Integer(string="Age", compute='_compute_age', inverse='_inverse_compute_age', search="_search_age", tracking=True)
     ref = fields.Char(string="Reference", translate=True, default="odoo Mates", help="Reference of the patient record")
     email = fields.Char(string="Email", translate=True,  help="Email of the patient record")
+    phone = fields.Char(string="Phone")
+    website = fields.Char(string="Website")
     gender = fields.Selection([('male', 'Male'), ('female', 'Female')], string="Gender", tracking=True,
+
                               default='female', translate=True)
     active = fields.Boolean(string="Active", default=True)
     appointment_id = fields.Many2one(comodel_name='hospital.appointment')
@@ -31,6 +34,7 @@ class HospitalPatient(models.Model):
     marital_status = fields.Selection([('married', 'Married'),
                                        ('single' , 'Single')] , string="Marital Status" , tracking=True)
     partner_name = fields.Char(string = "Partner name")
+    is_birthday = fields.Boolean(string="Birthday" , compute="_compute_is_birthday")
 
     @api.depends('appointment_ids')
     def _compute_appointment_count(self):
@@ -94,6 +98,19 @@ class HospitalPatient(models.Model):
     def action_done(self):
         print("done by marion")
 
+    @api.depends('date_of_birth')
+    def _compute_is_birthday(self):
+        for rec in self:
+            is_birthday = False
+            if rec.date_of_birth:
+
+                today = date.today()
+                print("date today", today)
+                print("date today", rec.date_of_birth)
+                if today.day == rec.date_of_birth.day and today.month == rec.date_of_birth.month:
+                    is_birthday = True
+            rec.is_birthday = is_birthday
+            return rec.is_birthday
     def name_get(self):
         # print("name get",self.env['ir.sequence'].next_by_code('hospital.patient'))
         # print(self.env.user.name)

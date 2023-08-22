@@ -6,7 +6,9 @@ class HospitalAppointment(models.Model):
     _inherit = "mail.thread", 'mail.activity.mixin'
     _description = "Hospital Appointment"
     _rec_name = 'ref'
+    _order= 'id desc'
     # convention for a many to one field
+    name = fields.Char(string="Order reference" , required=True , copy=False , readonly=True, default =lambda self: _('New'))
     patient_id = fields.Many2one(comodel_name='hospital.patient', string="Patient", required=True , ondelete="restrict")
     appointment_time = fields.Datetime(string='Appointment Time', default=fields.Datetime.now)
     booking_time = fields.Date(string='Booking Time', default=fields.Date.context_today)
@@ -34,7 +36,7 @@ class HospitalAppointment(models.Model):
     company_id = fields.Many2one('res.company' , required=False )
     @api.model
     def create(self, vals):
-        vals['ref'] = self.env['ir.sequence'].next_by_code('hospital.appointment')
+        vals['name'] = self.env['ir.sequence'].next_by_code('hospital.appointment')
         return super(HospitalAppointment, self).create(vals)
 
     def unlink(self):
@@ -76,7 +78,7 @@ class HospitalAppointment(models.Model):
 
     def action_cancel(self):
         action = self.env.ref('om_hospital.action_cancel_appointment').read()[0]
-        print("action 0" , action)
+        print("action 0", action)
         return action
 
     def action_draft(self):

@@ -16,6 +16,7 @@ class CancelAppointmentWizard(models.TransientModel):
         print("Default get executed", res)
         res['date_cancel'] = datetime.date.today()
         print('...... context', self.env.context)
+        print("active id ",self.env.context.get('active_id'))
         if self.env.context.get('active_id'):
             res['appointment_id'] = self.env.context.get('active_id')
         return res
@@ -42,4 +43,8 @@ class CancelAppointmentWizard(models.TransientModel):
             raise ValidationError("Invalid appointment cancellation request. Please provide a valid reason.")
         self.appointment_id.state = 'cancel'
         print('appointment_state', self.appointment_id.state)
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload'
+        }
         # return

@@ -1,5 +1,5 @@
-from odoo import api, fields, models
-
+from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 class HospitalAppointment(models.Model):
     _name = "hospital.appointment"
@@ -7,7 +7,7 @@ class HospitalAppointment(models.Model):
     _description = "Hospital Appointment"
     _rec_name = 'ref'
     # convention for a many to one field
-    patient_id = fields.Many2one(comodel_name='hospital.patient', string="Patient", required=True)
+    patient_id = fields.Many2one(comodel_name='hospital.patient', string="Patient", required=True , ondelete="restrict")
     appointment_time = fields.Datetime(string='Appointment Time', default=fields.Datetime.now)
     booking_time = fields.Date(string='Booking Time', default=fields.Date.context_today)
     # readonly false make the parent patient reflected by a change
@@ -30,11 +30,18 @@ class HospitalAppointment(models.Model):
     doctor_id = fields.Many2one('res.users', string="Doctor", tracking=True)
     pharmacy_line_ids = fields.One2many('appointment.pharmacy.lines', 'appointment_id', string='Pharmacy Lines')
     hide_sales_price = fields.Boolean(string="Hide Sales PRice")
-
+    operation = fields.Many2one('hospital.operation', string="Operation")
+    company_id = fields.Many2one('res.company' , required=False )
     @api.model
     def create(self, vals):
         vals['ref'] = self.env['ir.sequence'].next_by_code('hospital.appointment')
         return super(HospitalAppointment, self).create(vals)
+
+    def unlink(self):
+        print("Test .............................SS")
+        if self.state == 'done':
+            raise ValidationError(_("Error you cannot delete record in done state"))
+        return super(HospitalAppointment ,  self).unlink()
     @api.onchange('patient_id')
     def _onchange_patient_id(self):
         self.ref = self.patient_id.ref
@@ -49,9 +56,19 @@ class HospitalAppointment(models.Model):
             }
         }
 
+    def action_send_email(self):
+        template = self.env.ref('om_hospital.appointment_mail_template')
+        print(template)
+        for rec in self:
+            if rec.patient_id.email:
+                email_values = {'subject': 'Test OM'}
+                # force_send parameter to send it immediatly
+                #template.send_mail(rec.id , force_send=True, email_values=email_values )
+                template.send_mail(rec.id , force_send=True )
     def action_in_consultation(self):
         for rec in self:
-            rec.state = 'in_consultation'
+            if rec.state == "draft":
+                rec.state = 'in_consultation'
 
     def action_done(self):
         for rec in self:

@@ -38,6 +38,12 @@
         <field name="model">hospital.appointment</field>
         <field name="arch" type="xml">
             <tree decoration-success="state == 'done'" create="1" delete="1" sample="1" multi_edit="1">
+                <header>
+                    <!--                    state equal to draft only work inside the form view-->
+                    <button name="action_in_consultation" string="In Consultation" class="oe_highlight" type="object"
+                    />
+
+                </header>
                 <field name="patient_id"/>
                 <field name="appointment_time"/>
                 <field name="ref" optional="hide"/>
@@ -58,6 +64,18 @@
                        decoration-danger="1 if state == 'cancel' else 0"
                        decoration-muted="state in ('in_consultation')"
                 />
+                <button name="action_done" string="Mark As Done" class="fa fa-check btn-success" type="object"
+                        states="in_consultation"/>
+
+                <button name="%(om_hospital.action_cancel_appointment)d"
+                        type="action"
+                        class="fa fa-times btn-danger"
+                        attrs="{'invisible' : [('state' , 'not in' , ('draft','in_consultation'))]}"/>
+                <!--can only apply in mane2one field in odoo-->
+                <groupby name="patient_id">
+                    <button name="action_test" string="Click Me" type="object" class="oe_highlight"/>
+                    <button name="edit" string="edit" type="edit"/>
+                </groupby>
             </tree>
         </field>
     </record>
@@ -73,16 +91,18 @@
                             states="draft"/>
                     <button name="action_done" string="Mark As Done" type="object" class="oe_highlight"
                             states="in_consultation"/>
-<!--                                        <button name="%(om_hospital.action_cancel_appointment)d" string="Cancel"-->
-<!--                                                context="{'default_appointment_id': active_id}"-->
-<!--                                                type="action"-->
-<!--                                                states="draft,in_consultation"/>-->
-<!--                    <button name="action_cancel" string="Cancel" confirm="Are you sure to cancel it ?" type="object"-->
-<!--                            states="draft,in_consultation"/>-->
-                      <button name="%(om_hospital.action_cancel_appointment)d" string="Cancel"
-                                                context="{'default_reason': 'test', 'hide_appointment':1}"
-                                                type="action"
-                                                states="draft,in_consultation"/>
+                    <!--                                        <button name="%(om_hospital.action_cancel_appointment)d" string="Cancel"-->
+                    <!--                                                context="{'default_appointment_id': active_id}"-->
+                    <!--                                                type="action"-->
+                    <!--                                                states="draft,in_consultation"/>-->
+                    <button name="action_cancel" string="Cancel" confirm="Are you sure to cancel it ?" type="object"
+                            states="draft,in_consultation"/>
+                    <button name="action_send_email" string="Send Mail" class="oe_highlight" type="object"
+                />
+                    <button name="%(om_hospital.action_cancel_appointment)d" string="Cancel"
+                            context="{'default_reason': 'test', 'hide_appointment':1}"
+                            type="action"
+                            states="draft,in_consultation"/>
                     <button name="action_draft" string="Reset to draft" type="object" states="cancel" data-hotkey="z"/>
                     <field name="state" widget="statusbar" nolabel="1"
                            statusbar_visible="draft,in_consultation,done" class="oe_highlight"/>
@@ -90,7 +110,7 @@
                 <sheet>
                     <div class="oe_title">
                         <h1>
-                            <field name="ref" readonly="1" />
+                            <field name="ref" readonly="1"/>
                         </h1>
                     </div>
                     <div class="oe_title">
@@ -103,16 +123,17 @@
                             <field name="patient_id"/>
                             <field name="doctor_id" widget="many2one_avatar"/>
                             <!--                            <field name="state"/>-->
+                            <field name="operation"/>
                         </group>
                         <group>
                             <field name="appointment_time"/>
                             <field name="hide_sales_price" groups="base.group_no_one"/>
                             <field name="booking_time" default_focus="1"/>
-                            <field name="ref"/>
+                            <field name="ref" readonly="1" force_save="1"/>
+                            <field name="company_id"/>
                             <button name="action_test" string="Test Button" type="object"/>
                             <button name="%(om_hospital.action_hospital_patient)d" string="Action Button" type="action"
                                     class="oe_highlight"/>
-
                         </group>
 
                     </group>

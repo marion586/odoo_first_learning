@@ -8,9 +8,10 @@
         <field name="name">hospital.patient.tree</field>
         <field name="model">hospital.patient</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree export_xlsx="0">
                 <field name="name" string="Patient Name"/>
-                <field name="age"/>
+                <field name="age" avg="Average Age"/>
+                <field name="appointment_count" sum="Total Appointment"/>
                 <field name="gender" />
                 <field name="ref"/>
 
@@ -21,21 +22,43 @@
         <field name="name">hospital.patient.form</field>
         <field name="model">hospital.patient</field>
         <field name="arch" type="xml">
-            <form>
+            <form copy="1">
                 <sheet>
                     <field name="image" widget="image" class="oe_avatar"/>
                     <group>
+                        <div class="oe_title">
+                            <h2>
+                                 <field name="ref" readonly="1"/>
+                            </h2>
+                            <h2>
+                                <label for="name" string="name" class="oe_edit_only"/>
+                                <field name="name"/>
+                            </h2>
+                        </div>
                         <group>
-                            <field name="name"/>
+
                             <field name="date_of_birth"/>
                             <field name="age"/>
-                            <field name="tag_ids" widget="many2many_tags"/>
+                            <field name="appointment_count"/>
+                            <field name="appointment_ids"/>
+<!--                            <field name="tag_ids" widget="many2many_tags"/>-->
+                             <field name="tag_ids" widget="many2many_checkboxes"/>
                         </group>
                         <group>
                             <field name="ref"/>
-                            <field name="gender" invisible="context.get('hide_gender')"/>
+                            <field name="email"/>
+                            <field name="gender" invisible="context.get('hide_gender')" widget="radio   "/>
                             <field name="active" invisible="1"/>
-                            <field name="appointment_id"/>
+<!--                            <field name="appointment_id"/>-->
+                        </group>
+
+                        <group string="Other Information" name="other_info">
+                            <group>
+                                <field name="parent" attrs="{'invisible': [('age' , '&gt;='  , 18) , ('gender' , '=' , 'male')]}"/>
+                                <field name="marital_status" attrs="{'invisible': ['|' ,('age' , '>'  , 18) , ('gender' , '=' , 'male')]}"/>
+                                <field name="partner_name" attrs="{'readonly': [('marital_status', '!=', 'married')] ,
+                                                                    'required': [('marital_status', '=' , 'married')]}"/>
+                            </group>
                         </group>
 
                     </group>
@@ -77,12 +100,51 @@
             </search>
         </field>
     </record>
+
+<!--    Kanban View-->
+
+    <record id="view_patient_kanban" model="ir.ui.view">
+        <field name="name">hospital.patient.kanban</field>
+        <field name="model">hospital.patient</field>
+            <field name="arch" type="xml">
+                    <kanban>
+                        <field name="id"/>
+                        <field name="name"/>
+                        <field name="gender"/>
+                        <field name="age"/>
+                        <field name="email"/>
+                        <templates>
+                            <t t-name="kanban-box">
+                                <div t-attf-class="oe_kanban_global_click">
+                                    <div class="o_kanban_image">
+                                        <img alt="Avatar" t-att-src="kanban_image('hospital.patient' , 'image' , record.id.raw_value)"/>
+                                    </div>
+
+                                    <div class="oe_kanban_details">
+                                        <ul>
+                                            <li>
+                                                Name:<field name="name"/>
+                                            </li>
+                                            <li>
+                                                Age:<field name="age"/>
+                                            </li>
+                                              <li>
+                                                Gender:<field name="gender"/>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </t>
+                        </templates>
+                    </kanban>
+            </field>
+    </record>
 <!--    like an handler-->
     <record id="action_hospital_patient" model="ir.actions.act_window">
         <field name="name">Patients</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">hospital.patient</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,kanban</field>
         <field name="context">{'search_default_male_filter': 1 , 'search_default_group_by_gender': 1}</field>
         <field name="help" type="html">
             <p class="o_view_content_smiling_face">Create your Patient!</p>

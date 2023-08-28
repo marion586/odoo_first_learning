@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
 
-
+    <record id="action_mark_as_done" model="ir.actions.server">
+        <field name="name">Mark as Done</field>
+        <field name="model_id" ref="model_hospital_appointment"/>
+        <field name="binding_model_id" ref="model_hospital_appointment"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            for record in records:
+                if record.state == 'in_consultation':
+                    record.action_done()
+        </field>
+    </record>
     <record id="view_hospital_appointment_activity" model="ir.ui.view">
         <field name="name">hospital.appointment.activity</field>
         <field name="model">hospital.appointment</field>
@@ -37,7 +48,7 @@
         <field name="name">hospital.appointment.tree</field>
         <field name="model">hospital.appointment</field>
         <field name="arch" type="xml">
-            <tree decoration-success="state == 'done'" create="1" delete="1" sample="1" multi_edit="1">
+            <tree decoration-success="state == 'done'"  create="1" delete="1" sample="1" multi_edit="1">
                 <header>
                     <!--                    state equal to draft only work inside the form view-->
                     <button name="action_in_consultation" string="In Consultation" class="oe_highlight" type="object"
@@ -62,7 +73,7 @@
                        decoration-success="state == 'done'"
                        decoration-info="state in ('draft')"
                        decoration-danger="1 if state == 'cancel' else 0"
-                       decoration-muted="state in ('in_consultation')"
+                       decoration-warning="state in ('in_consultation')"
                 />
                 <button name="action_done" string="Mark As Done" class="fa fa-check btn-success" type="object"
                         states="in_consultation"/>
